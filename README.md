@@ -9,19 +9,6 @@ This repository contains an Ansible playbook designed to install, register, and 
 - Install ansible: `pip3 install ansible`
 - Copy your ssh public key to all hosts with `ssh-copy-id -i ~/.ssh/id_rsa.pub root@your_server_ip`
 
-### Installation
-
-The installation process consists of several tasks to prepare and set up the system, as well as initialize the Allora node:
-
-- **Prepare Environment**: Prepares the necessary prerequisites for installation.
-  
-  ```yaml
-  - name: Run prepare tasks
-    include_tasks: install/prepare.yml
-    when: install
-    ```
-
-
 ### Execution Commands
 
 Ensure to edit your inventory file before proceeding, specifically setting the correct moniker for each host. 
@@ -31,7 +18,7 @@ Example inventory:
       hosts:
         111.111.111.111:
           ansible_user: root
-          moniker: uniq)name  # Set moniker name here
+          moniker: uniq_name  # Set moniker name here
       vars:
         ansible_python_interpreter: /usr/bin/python3
    ```
