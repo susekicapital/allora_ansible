@@ -1,0 +1,88 @@
+---
+- name: Add git safe.directory exception
+  ansible.builtin.command: "git config --global --add safe.directory {{ data_dir }}/allora-chain"
+
+
+- name: Get current git commit hash
+  ansible.builtin.command: "git rev-parse HEAD"
+  args:
+    chdir: "{{ data_dir }}/allora-chain"
+  register: current_commit
+  ignore_errors: yes
+
+- name: Get target git commit hash
+  ansible.builtin.command: "git ls-remote {{ repo_url }} {{ repo_branch }} | awk '{ print $1 }'"
+  register: target_commit
+
+- name: Check if update is needed
+  ansible.builtin.set_fact:
+    update_needed: "{{ current_commit.stdout != target_commit.stdout }}"
+
+- name: Temporarily stash local changes
+  ansible.builtin.shell: "git stash"
+  args:
+    chdir: "{{ data_dir }}/allora-chain"
+  become_user: "{{ username }}"
+  ignore_errors: yes
+
+- name: Update allora-chain repository
+  ansible.builtin.git:
+    repo: "{{ repo_url }}"
+    dest: "{{ data_dir }}/allora-chain"
+    version: "{{ repo_branch }}"
+    update: yes
+    force: true
+  become_user: "{{ username }}"
+  when: update_needed
+
+- name: Set ownership for allora-chain repository
+  ansible.builtin.file:
+    path: "{{ data_dir }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    recurse: yes
+
+- name: Write docker-compose.yml
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ data_dir }}/allora-chain/docker-compose.yaml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '0644'
+
+- name: Remove old Docker images
+  ansible.builtin.shell: |
+    docker image prune -f
+  args:
+    chdir: "{{ data_dir }}/allora-chain"
+  become_user: "{{ username }}"
+
+- name: Pull the Docker Compose images
+  ansible.builtin.shell: |
+    docker compose pull
+  args:
+    chdir: "{{ data_dir }}/allora-chain"
+  become_user: "{{ username }}"
+
+- name: Start the Docker Compose node service
+  ansible.builtin.shell: |
+    docker compose up node -d
+  args:
+    chdir: "{{ data_dir }}/allora-chain"
+  become_user: "{{ username }}"
+
+- name: Wait for the service to be synced
+  ansible.builtin.command: >
+    curl -s http://localhost:26657/status
+  register: command_output
+  retries: 30
+  delay: 120
+  until: '"catching_up\":false" in command_output.stdout'
+
+- name: Notify the status is synced
+  ansible.builtin.debug:
+    msg: "The node is fully synced and operational."
+
+- name: Confirm update completion
+  ansible.builtin.debug:
+    msg: "Update completed successfully!"

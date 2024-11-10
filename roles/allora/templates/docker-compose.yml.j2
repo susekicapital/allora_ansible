@@ -1,0 +1,18 @@
+services:
+  node:
+    container_name: allora_validator_by_coupeol
+    image: "alloranetwork/allora-chain:{{ allora_image_version }}"
+    environment:
+      - NETWORK=allora-testnet-1
+      - MONIKER={{ moniker }}
+      - APP_HOME=/data
+      - HOME=/data
+      - STATE_SYNC_RPC1=https://allora-rpc.testnet.allora.network:443
+      - STATE_SYNC_RPC2=https://allora-rpc.testnet.allora.network:443
+    volumes:
+      - ./data:/data
+      - ./scripts/:/scripts
+    ports:
+      - "26656-26657:26656-26657"
+    user: "0:0"
+    entrypoint: /scripts/l1_node.sh

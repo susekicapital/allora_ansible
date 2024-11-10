@@ -1,0 +1,34 @@
+---
+- name: Pull the Docker Compose images
+  ansible.builtin.shell: |
+    docker compose pull
+  args:
+    chdir: "{{ data_dir }}/allora-chain"
+  become_user: "{{ username }}"
+
+- name: Start the Docker Compose node service
+  ansible.builtin.shell: |
+    docker compose up node -d
+  args:
+    chdir: "{{ data_dir }}/allora-chain"
+  become_user: "{{ username }}"
+
+- name: Wait for the service to be synced
+  ansible.builtin.command: >
+    curl -s http://localhost:26657/status
+  register: command_output
+  retries: 30
+  delay: 120
+  until:
+    - command_output.rc == 0
+    - (command_output.stdout | from_json).result.sync_info.catching_up == false
+
+- name: Notify the status is synced
+  ansible.builtin.debug:
+    msg: "The node is fully synced and operational."
+
+- name: Fetch account_info file from remote host
+  ansible.builtin.fetch:
+    src: "{{ data_dir }}/allora-chain/data/{{ moniker }}.account_info"
+    dest: "./keys/{{ ansible_host }}.{{ moniker }}.account_info"
+    flat: yes

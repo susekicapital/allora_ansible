@@ -1,0 +1,44 @@
+---
+- name: Create user {{ username }}
+  ansible.builtin.user:
+    name: "{{ username }}"
+    shell: /bin/bash
+    state: present
+    groups: "docker,sudo"
+    password: "{{ user_password | password_hash('sha512') }}"
+
+- name: Create data directory for user {{ username }}
+  ansible.builtin.file:
+    path: "{{ data_dir }}"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '0755'
+
+- name: Create .local/bin directory
+  ansible.builtin.file:
+    path: "/home/{{ username }}/.local/bin"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '0755'
+    
+- name: Ensure {{ username }} data directory exist
+  ansible.builtin.file:
+    path: "{{ data_dir }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ username }}"
+    group: "{{ username }}"
+
+- name: Set root password
+  ansible.builtin.user:
+    name: root
+    password: "{{ root_password | password_hash('sha512') }}"
+
+- name: Disable root login with password
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PermitRootLogin'
+    line: 'PermitRootLogin prohibit-password'
+  notify: Restart SSH

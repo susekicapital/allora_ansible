@@ -1,0 +1,53 @@
+---
+- name: Get validator public key
+  ansible.builtin.shell: |
+    docker compose exec node allorad --home={{ allora_home }} comet show-validator
+  register: validator_pubkey
+  args:
+    chdir: "{{ data_dir }}/allora-chain"
+
+- name: Display validator public key
+  ansible.builtin.debug:
+    msg: "{{ validator_pubkey.stdout }}"
+
+- name: Create stake-validator.json template
+  ansible.builtin.template:
+    src: stake-validator.json.j2
+    dest: "{{ data_dir }}/allora-chain/data/stake-validator.json"
+  vars:
+    pubkey: "{{ validator_pubkey.stdout | from_json }}"
+  become_user: "{{ username }}"
+
+- name: Stake as Validator
+  ansible.builtin.shell: |
+    docker compose exec node allorad tx staking create-validator ./stake-validator.json \
+        --chain-id={{ network }} \
+        --home={{ allora_home }} \
+        --keyring-backend=test \
+        --from={{ moniker }} \
+        --yes
+  register: validator_creation
+  args:
+    chdir: "{{ data_dir }}/allora-chain/data"
+  retries: 100
+  delay: 0.2
+  until: (validator_creation.stdout | regex_findall('code:\s+(\d+)'))[0] | int == 0
+
+
+- name: Display validator creation output
+  ansible.builtin.debug:
+    msg: "{{ validator_creation.stdout }}"
+
+- name: Get validator information
+  ansible.builtin.shell: |
+    VAL_PUBKEY=$(docker compose exec node allorad --home={{ allora_home }} comet show-validator | jq -r .key)
+    docker compose exec node allorad --home={{ allora_home }} q staking validators -o=json | \
+    jq '.validators[] | select(.consensus_pubkey.value=="'$VAL_PUBKEY'")'
+  register: validator_info
+  args:
+    chdir: "{{ data_dir }}/allora-chain"
+
+- name: Display validator information
+  ansible.builtin.debug:
+    msg: "{{ validator_info.stdout }}"
+

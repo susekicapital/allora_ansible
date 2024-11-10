@@ -1,0 +1,31 @@
+---
+- name: Clone allora-chain repository
+  ansible.builtin.git:
+    repo: "{{ repo_url }}"
+    dest: "{{ data_dir }}/allora-chain"
+    version: "{{ repo_branch }}"
+    update: yes
+    force: true
+  become_user: "{{ username }}"
+  register: clone_status
+
+- name: Display status of git clone
+  ansible.builtin.debug:
+    var: clone_status
+
+- name: Set ownership for allora-chain repository
+  ansible.builtin.file:
+    path: "{{ data_dir }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    recurse: yes
+
+- name: Write docker-compose.yml
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ data_dir }}/allora-chain/docker-compose.yaml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '0644'
+
+

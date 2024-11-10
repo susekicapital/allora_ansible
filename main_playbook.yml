@@ -1,0 +1,14 @@
+---
+- hosts: all
+  gather_facts: true
+  become: true
+
+  pre_tasks:
+    - name: Install apt packages
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 86400
+        pkg: python3
+  roles:
+    - allora
+
