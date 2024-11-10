@@ -5,7 +5,6 @@ register_validator: false
 update: false
 username: "allora"
 user_password: "super_strong_password" # use vault, check https://docs.ansible.com/ansible/2.8/user_guide/vault.html
-root_password: "super_strong_root_password" # use vault, check https://docs.ansible.com/ansible/2.8/user_guide/vault.html
 data_dir: "/home/{{ username }}/.allora"
 allora_image_version: v0.6.0
 repo_url: "https://github.com/allora-network/allora-chain.git"

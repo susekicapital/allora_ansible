@@ -4,6 +4,10 @@ This repository contains an Ansible playbook designed to install, register, and 
 
 ## Structure
 
+### Before installation
+- Ensure you have python3 installed.
+- Install ansible: `pip3 install ansible`
+
 ### Installation
 
 The installation process consists of several tasks to prepare and set up the system, as well as initialize the Allora node:
@@ -87,5 +91,5 @@ Key configuration variables used across the playbook:
 
 ### Important Notes
 - **Moniker Configuration:** Ensure each host within your inventory file has a unique moniker assigned as it is crucial for the registration of the validator.
-- **Security Practices:** Use Ansible Vault for storing sensitive information like user_password and root_password. Refer to the Ansible Vault documentation for guidance.
+- **Security Practices:** Use Ansible Vault for storing sensitive information like `user_password`. Refer to the Ansible Vault documentation for guidance.
 

@@ -30,15 +30,3 @@
     mode: '0755'
     owner: "{{ username }}"
     group: "{{ username }}"
-
-- name: Set root password
-  ansible.builtin.user:
-    name: root
-    password: "{{ root_password | password_hash('sha512') }}"
-
-- name: Disable root login with password
-  ansible.builtin.lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: '^PermitRootLogin'
-    line: 'PermitRootLogin prohibit-password'
-  notify: Restart SSH
