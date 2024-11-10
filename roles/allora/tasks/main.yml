@@ -2,27 +2,27 @@
 # Install
 - name: Run prepare tasks
   include_tasks: install/prepare.yml
-  when: install
+  when: install | bool
 
 - name: Run system tasks
   include_tasks: install/system.yml
-  when: install
+  when: install | bool
 
 - name: Run allora initialization tasks
   include_tasks: install/init.yml
-  when: install
+  when: install | bool
 
 - name: Run allora initialization tasks
   include_tasks: install/setup.yml
-  when: install
+  when: install | bool
 
 # Validator registration
 - name: Run validator tasks
   include_tasks: register/validator.yml
-  when: register_validator
+  when: register_validator | bool
 
 # Node update
 - name: Run update task
   include_tasks: update/node_update.yml
-  when: update
+  when: update | bool
 

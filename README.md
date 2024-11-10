@@ -7,6 +7,7 @@ This repository contains an Ansible playbook designed to install, register, and 
 ### Before installation
 - Ensure you have python3 installed.
 - Install ansible: `pip3 install ansible`
+- Copy your ssh public key to all hosts with `ssh-copy-id -i ~/.ssh/id_rsa.pub root@your_server_ip`
 
 ### Installation
 
@@ -47,7 +48,7 @@ As soon as you top up your wallets, you can proceed to Stage 2
 
 - **Stage 2 - Registration:** 
     ```bash
-    ansible-playbook -i iinventory/hosts.yml main_playbook.yml -e "install=false register_validator=true update=false"
+    ansible-playbook -i inventory/hosts.yml main_playbook.yml -e "install=false register_validator=true update=false"
     ```
 - **Update Node:** 
     ```bash
