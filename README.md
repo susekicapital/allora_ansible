@@ -35,18 +35,17 @@ Example inventory:
         ansible_python_interpreter: /usr/bin/python3
    ```
 
-### Run Full Playbook
-
-```bash
-ansible-playbook -i inventory/hosts.yml main_playbook.yml
-```
-
 ### Run Specific Tasks with Extra Vars:
-- **Installation Only:** 
+- **Stage 1 - Install and sync full node:** 
     ```bash
     ansible-playbook -i inventory/hosts.yml main_playbook.yml -e "install=true register_validator=false update=false"
     ```
-- **Registration Only:** 
+During this step, node credentials will be downloaded to the /keys folder from the node. 
+You will need to top up your wallets with amount specified in variable `amount: "20000000uallo"
+` (file /roles/allora/defaults/main.yml).
+As soon as you top up your wallets, you can proceed to Stage 2
+
+- **Stage 2 - Registration:** 
     ```bash
     ansible-playbook -i iinventory/hosts.yml main_playbook.yml -e "install=false register_validator=true update=false"
     ```
@@ -93,3 +92,16 @@ Key configuration variables used across the playbook:
 - **Moniker Configuration:** Ensure each host within your inventory file has a unique moniker assigned as it is crucial for the registration of the validator.
 - **Security Practices:** Use Ansible Vault for storing sensitive information like `user_password`. Refer to the Ansible Vault documentation for guidance.
 
+### Community & Support
+
+- 📱 Telegram: Suseki Capital https://t.me/susekicapital - Follow for updates, guides, and support
+- 🐛 Issues: Feel free to submit issues and enhancement requests
+- 💡 Contributing: Contributions are welcome! Please check our contributing guidelines
+
+### Support the Project 🚀
+If this playbook saved you some time or helped automate your validator setup, consider buying me a coffee:
+- SOL: `7ZeiFgCAeSc8QoAjm32fCzNqdPkF6h57YECcCvAdKdW3`
+- ETH/ERC20: `0x88a81527a7437edC969Da7CDD5F8f5a9d9cdCF9A`
+- TRX/TRC20: `TPTrsTDjUPSpvN4Qn1PMuA2kT13FMFWz1t`
+
+Your support helps maintain and improve this tool. Plus, caffeinated developers write better code! ☕️
